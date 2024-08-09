@@ -1,0 +1,112 @@
+#ifndef DATA_H
+#define DATA_H
+
+#include <stdint.h>
+
+#define CARD_NAME "Anric"
+#define PROGRAM_NAME "anric"
+#define VERSION "1.0.1"
+
+#define SLAVE_OWN_ADDRESS_BASE 0x06
+
+
+#define ADC_CH_NO 1
+#define ADC_RAW_CHANNELS 1
+#define ADC_RAW_VAL_SIZE 2
+#define ANALOG_VAL_SIZE 2
+
+#define MIN_CH_NO 1
+
+#define U_IN_CH_NO 1
+
+#define U_OUT_CH_NO 1
+
+#define RELAY_CH_NO 2
+
+#define MOS_CH_NR 10
+#define MOSFET_CH_NO 10
+
+#define CALIBRATION_KEY 0xaa
+#define RESET_CALIBRATION_KEY	0x55
+#define WDT_RESET_SIGNATURE     0xca
+#define WDT_RESET_COUNT_SIGNATURE    0xbe
+
+#define VOLT_TO_MILIVOLT 1000
+#define MILIAMPER_TO_MICROAMPER 1000
+
+enum {
+	CALIB_IN_PROGRESS = 0,
+	CALIB_DONE,
+	CALIB_ERROR,
+};
+enum {
+	CALIB_NOTHING = 0,
+	CALIB_RTD_CH1,
+	CALIB_U_IN_CH1 = CALIB_RTD_CH1 + 2,
+	CALIB_I_IN_CH1 = CALIB_U_IN_CH1 + 2,
+	CALIB_U_OUT_CH1 = CALIB_I_IN_CH1 + 2,
+	CALIB_I_OUT_CH1 = CALIB_U_OUT_CH1 + 2,
+	CALIB_LAST_CH = 10,
+};
+
+enum I2C_MEM {
+	/* i2c memory addresses */
+	I2C_MEM_RELAYS,
+	I2C_MEM_RELAY_SET,
+	I2C_MEM_RELAY_CLR,
+	I2C_MEM_MOS_DIG_REG1,
+	I2C_MEM_MOS_DIG_REG2,
+	I2C_MEM_MOS_DIG_READ_REG1,
+	I2C_MEM_MOS_DIG_READ_REG2,
+
+	I2C_MEM_U_IN,
+	I2C_MEM_U_OUT = I2C_MEM_U_IN + U_IN_CH_NO * ANALOG_VAL_SIZE,
+
+	I2C_MEM_DIAG_TEMPERATURE_ADD = I2C_MEM_U_OUT + U_IN_CH_NO * ANALOG_VAL_SIZE,
+	I2C_MEM_DIAG_3V3_MV_ADD,
+	I2C_MEM_DIAG_3V3_MV_ADD1,
+	I2C_MEM_CALIB_VALUE,
+	I2C_MEM_CALIB_CHANNEL = I2C_MEM_CALIB_VALUE + 4, //RTD [1/2]; 0-10_IN[3/4]; 4-20_IN[5/6]; 0-10_OUT[7/8]; 4-20_IN[9/10]
+	I2C_MEM_CALIB_KEY, //set calib point -> 0xaa; reset calibration on the channel -> 0x55
+	I2C_MEM_CALIB_STATUS,
+
+	I2C_MEM_PWM1,
+
+	I2C_MEM_PWM_END = I2C_MEM_PWM1 + MOS_CH_NR * ANALOG_VAL_SIZE,
+	I2C_PWM_FREQ,
+
+	I2C_MEM_REVISION_HW_MAJOR_ADD = 0x78,
+	I2C_MEM_REVISION_HW_MINOR_ADD,
+	I2C_MEM_REVISION_MAJOR_ADD,
+	I2C_MEM_REVISION_MINOR_ADD,
+
+	SLAVE_BUFF_SIZE = 255,
+};
+
+#define ERROR -1
+#define OK 0
+#define ARG_CNT_ERR -2
+#define ARG_RANGE_ERROR -3
+#define IO_ERROR -4
+
+#define STR_(x) #x
+#define STR(x) STR_(x)
+#define MASK_1 1
+#define MASK_2 3
+#define MASK_3 7
+#define MASK_4 15
+#define MASK_5 31
+#define MASK_6 63
+#define MASK_7 127
+#define MASK_(x) MASK_##x
+#define MASK(x) MASK_(x)
+
+typedef enum {
+	OFF,
+	ON,
+	STATE_COUNT,
+} State;
+
+#endif /* DATA_H */
+
+// vi:fdm=marker
