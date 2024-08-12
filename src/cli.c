@@ -24,5 +24,7 @@ const CliCmdType *gCmdArray[] = {
 	&CMD_MOSFET_WRITE,
 	&CMD_PWM_READ,
 	&CMD_PWM_WRITE,
+	&CMD_FREQ_READ,
+	&CMD_FREQ_WRITE,
 	0
 };

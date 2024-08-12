@@ -5,7 +5,7 @@
 
 #define CARD_NAME "Anric"
 #define PROGRAM_NAME "anric"
-#define VERSION "1.0.1"
+#define VERSION "1.0.2"
 
 #define SLAVE_OWN_ADDRESS_BASE 0x06
 
@@ -33,6 +33,9 @@
 
 #define VOLT_TO_MILIVOLT 1000
 #define MILIAMPER_TO_MICROAMPER 1000
+
+#define TIM_PWM_MIN_FREQ 16
+#define TIM_PWM_MAX_FREQ 1000
 
 enum {
 	CALIB_IN_PROGRESS = 0,

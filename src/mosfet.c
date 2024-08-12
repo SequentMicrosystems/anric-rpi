@@ -3,20 +3,20 @@
 #include <string.h>
 #include <stdbool.h>
 
-
 #include "comm.h"
 #include "data.h"
 #include "mosfet.h"
 #include "analog.h"
 
-bool badPwmCh(int ch) {
-	if(!(MIN_CH_NO <= ch && ch <= MOSFET_CH_NO)) {
+bool badPwmCh(int ch)
+{
+	if (! (MIN_CH_NO <= ch && ch <= MOSFET_CH_NO))
+	{
 		printf("Mosfet channel out of range![%d..%d]\n", MIN_CH_NO, MOSFET_CH_NO);
 		return true;
 	}
 	return false;
 }
-
 
 const CliCmdType CMD_MOSFET_READ =
 {
@@ -168,63 +168,151 @@ int doMosfetWrite(int argc, char *argv[])
 	return OK ;
 }
 
-const CliCmdType CMD_PWM_READ = {/*{{{*/
+const CliCmdType CMD_PWM_READ =
+{/*{{{*/
 	"pwmrd",
 	2,
 	&doPwmRead,
-	"  pwmrd           Read Mosfet pwm value(%)\n",
+	"  pwmrd            Read Mosfet pwm value(%)\n",
 	"  Usage:           "PROGRAM_NAME" <id> pwmrd <channel>\n",
 	"  Example:         "PROGRAM_NAME" 0 pwmrd 2 #Read pwm output on mosfet channel #2 on board #0\n",
 };
-int doPwmRead(int argc, char *argv[]) {
-	if(argc != 4) {
+int doPwmRead(int argc, char *argv[])
+{
+	if (argc != 4)
+	{
 		return ARG_CNT_ERR;
 	}
 	int id = atoi(argv[1]);
 	int dev = doBoardInit(id);
-	if(dev < 0) {
-		return ERROR;
+	if (dev < 0)
+	{
+		return ERROR ;
 	}
 	int ch = atoi(argv[3]);
-	if(badPwmCh(ch)) {
+	if (badPwmCh(ch))
+	{
 		return ARG_RANGE_ERROR;
 	}
 	float val = 0;
-	if(OK != val16Get(dev, I2C_MEM_PWM1, ch, 10, &val)) {
-		return ERROR;
+	if (OK != val16Get(dev, I2C_MEM_PWM1, ch, 10, &val))
+	{
+		return ERROR ;
 	}
 	printf("%0.1f\n", val);
-	return OK;
+	return OK ;
 }/*}}}*/
-const CliCmdType CMD_PWM_WRITE = {/*{{{*/
+const CliCmdType CMD_PWM_WRITE =
+{/*{{{*/
 	"pwmwr",
 	2,
 	&doPwmWrite,
-	"  pwmwr           Write Mosfet output pwm fill factor value(%)\n",
+	"  pwmwr            Write Mosfet output pwm fill factor value(%)\n",
 	"  Usage:           "PROGRAM_NAME" <id> pwmwr <channel> <value(%)>\n",
 	"  Example:         "PROGRAM_NAME" 0 pwmwr 2 25 #Write 25% mosfet pwm channel #2 on board #0\n",
 };
-int doPwmWrite(int argc, char *argv[]) {
-	if(argc != 5) {
+int doPwmWrite(int argc, char *argv[])
+{
+	if (argc != 5)
+	{
 		return ARG_CNT_ERR;
 	}
 	int id = atoi(argv[1]);
 	int dev = doBoardInit(id);
-	if(dev < 0) {
-		return ERROR;
+	if (dev < 0)
+	{
+		return ERROR ;
 	}
 	int ch = atoi(argv[3]);
-	if(badPwmCh(ch)) {
+	if (badPwmCh(ch))
+	{
 		return ARG_RANGE_ERROR;
 	}
 	float val = atof(argv[4]);
-	if(!(0 <= val && val <= 100)) {
+	if (! (0 <= val && val <= 100))
+	{
 		printf("Invalid PWM, must be 0..100\n");
 		return ARG_RANGE_ERROR;
 	}
-	if(OK != val16Set(dev, I2C_MEM_PWM1, ch, 10, val)) {
-		return ERROR;
+	if (OK != val16Set(dev, I2C_MEM_PWM1, ch, 10, val))
+	{
+		return ERROR ;
 	}
-	return OK;
+	return OK ;
+}/*}}}*/
+
+const CliCmdType CMD_FREQ_READ =
+{/*{{{*/
+	"frd",
+	2,
+	&doFreqRead,
+	"  frd              Read Mosfet pwm frequency(Hz)\n",
+	"  Usage:           "PROGRAM_NAME" <id> frd \n",
+	"  Example:         "PROGRAM_NAME" 0 frd #Read pwm output frequency on board #0\n",
+};
+int doFreqRead(int argc, char *argv[])
+{
+	if (argc != 3)
+	{
+		return ARG_CNT_ERR;
+	}
+	int id = atoi(argv[1]);
+	int dev = doBoardInit(id);
+	if (dev < 0)
+	{
+		return ERROR ;
+	}
+
+	uint8_t buf[2];
+	uint16_t freqVal = 0;
+	if (OK != i2cMem8Read(dev, I2C_PWM_FREQ, buf, 2))
+	{
+		printf("Fail to read!\n");
+		return ERROR ;
+	}
+	memcpy(&freqVal, buf, 2);
+	printf("%d\n", (int)freqVal);
+	return OK ;
+}/*}}}*/
+
+
+const CliCmdType CMD_FREQ_WRITE =
+{/*{{{*/
+	"fwr",
+	2,
+	&doFreqWrite,
+	"  fwr              Write Mosfet output pwm frequency(Hz)\n",
+	"  Usage:           "PROGRAM_NAME" <id> fwr <value(Hz)>\n",
+	"  Example:         "PROGRAM_NAME" 0 pwmwr 25 #Set pwm frequency to 25Hz on board #0\n",
+};
+int doFreqWrite(int argc, char *argv[])
+{
+	if (argc != 4)
+	{
+		return ARG_CNT_ERR;
+	}
+	int id = atoi(argv[1]);
+	int dev = doBoardInit(id);
+	if (dev < 0)
+	{
+		return ERROR ;
+	}
+
+	int val = atoi(argv[3]);
+	if (! (TIM_PWM_MIN_FREQ <= val && val <= TIM_PWM_MAX_FREQ))
+	{
+		printf("Invalid frequency, must be %d..%d Hz\n", (int)TIM_PWM_MIN_FREQ, (int)TIM_PWM_MAX_FREQ);
+		return ARG_RANGE_ERROR;
+	}
+	uint8_t buf[2];
+	uint16_t freqVal = 0;
+	freqVal = (uint16_t)val;
+	memcpy(buf, &freqVal, 2);
+	if (OK != i2cMem8Write(dev, I2C_PWM_FREQ, buf, 2))
+	{
+		printf("Fail to write!\n");
+		return ERROR ;
+	}
+	return OK ;
 }/*}}}*/
 
