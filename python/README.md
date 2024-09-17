@@ -3,25 +3,25 @@
 # Install
 
 ```bash
-sudo pip install anric
+sudo pip install SManric
 ```
 
 or
 
 ```bash
-sudo pip3 install anric
+sudo pip3 install SManric
 ```
 
 # Update
 
 ```bash
-sudo pip install anric -U
+sudo pip install SManric -U
 ```
 
 or
 
 ```bash
-sudo pip3 install anric -U
+sudo pip3 install SManric -U
 ```
 
 # Initiate class
