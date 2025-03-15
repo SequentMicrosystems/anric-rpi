@@ -26,5 +26,7 @@ const CliCmdType *gCmdArray[] = {
 	&CMD_PWM_WRITE,
 	&CMD_FREQ_READ,
 	&CMD_FREQ_WRITE,
+	&CMD_GROUP_FREQ_READ,
+	&CMD_GROUP_FREQ_WRITE,
 	0
 };

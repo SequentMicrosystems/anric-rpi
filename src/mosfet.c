@@ -316,3 +316,90 @@ int doFreqWrite(int argc, char *argv[])
 	return OK ;
 }/*}}}*/
 
+const CliCmdType CMD_GROUP_FREQ_READ =
+{/*{{{*/
+	"gfrd",
+	2,
+	&doGrpFreqRead,
+	"  gfrd              Read Mosfet pwm frequency(Hz) per group\n",
+	"  Usage:           "PROGRAM_NAME" <id> gfrd <group>\n",
+	"  Example:         "PROGRAM_NAME" 0 gfrd 2 #Read pwm output frequency for channels 5 to 8 on board #0\n",
+};
+int doGrpFreqRead(int argc, char *argv[])
+{
+	if (argc != 4)
+	{
+		return ARG_CNT_ERR;
+	}
+	int id = atoi(argv[1]);
+	int dev = doBoardInit(id);
+	if (dev < 0)
+	{
+		return ERROR ;
+	}
+
+	int grp = atoi(argv[3]);
+	if(!(grp > 0 && grp < 5))
+	{
+		printf("Invalid group number, must be 1/2/3/4\n");
+		return ARG_RANGE_ERROR;
+	}
+
+	uint8_t buf[2];
+	uint16_t freqVal = 0;
+	if (OK != i2cMem8Read(dev, I2C_PWM_FREQ + 2*grp, buf, 2))
+	{
+		printf("Fail to read!\n");
+		return ERROR ;
+	}
+	memcpy(&freqVal, buf, 2);
+	printf("%d\n", (int)freqVal);
+	return OK ;
+}/*}}}*/
+
+
+const CliCmdType CMD_GROUP_FREQ_WRITE =
+{/*{{{*/
+	"gfwr",
+	2,
+	&doGrpFreqWrite,
+	"  gfwr              Write Mosfet output pwm frequency by groups (Hz) 1 = ch1 to 4, 2 = ch 5 to 8, 3 = ch 9, 4 = ch 10 \n",
+	"  Usage:           "PROGRAM_NAME" <id> gfwr <group> <value(Hz)>\n",
+	"  Example:         "PROGRAM_NAME" 0 gfwr 1 25 #Set pwm frequency to 25Hz for channels 1 to 4 on board #0\n",
+};
+int doGrpFreqWrite(int argc, char *argv[])
+{
+	if (argc != 5)
+	{
+		return ARG_CNT_ERR;
+	}
+	int id = atoi(argv[1]);
+	int dev = doBoardInit(id);
+	if (dev < 0)
+	{
+		return ERROR ;
+	}
+	int grp = atoi(argv[3]);
+	if(!(grp > 0 && grp < 5))
+	{
+		printf("Invalid group number, must be 1/2/3/4\n");
+		return ARG_RANGE_ERROR;
+	}
+	int val = atoi(argv[4]);
+	if (! (TIM_PWM_MIN_FREQ <= val && val <= TIM_PWM_MAX_FREQ))
+	{
+		printf("Invalid frequency, must be %d..%d Hz\n", (int)TIM_PWM_MIN_FREQ, (int)TIM_PWM_MAX_FREQ);
+		return ARG_RANGE_ERROR;
+	}
+	uint8_t buf[2];
+	uint16_t freqVal = 0;
+	freqVal = (uint16_t)val;
+	memcpy(buf, &freqVal, 2);
+	if (OK != i2cMem8Write(dev, I2C_PWM_FREQ + 2*grp, buf, 2))
+	{
+		printf("Fail to write!\n");
+		return ERROR ;
+	}
+	return OK ;
+}/*}}}*/
+
