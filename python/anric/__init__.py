@@ -199,12 +199,26 @@ class SManric:
 
         Args:
             mosfet (int): Mosfet number
-            val: 0(OFF) or 1(ON)
+            val: 0(OFF) or 100(%)
         """
         self._check_channel("mos", mosfet)
         if (not (0 <= val and val <= 100)):
             raise ValueError("Invalid mosfets pwm value [0..100]!")
         self._set_word(I2C_MEM.MOS_PWM1 + (mosfet - 1) * 2, val*10)
+        
+    def get_mosfet_pwm(self, mosfet):
+        """Get mosfet pwm fill factor.
+
+        Args:
+            mosfet (int): Mosfet number
+		Return:             
+            Fill factor 0..100
+        """
+        self._check_channel("mos", mosfet)
+      
+        val = self._get_word(I2C_MEM.MOS_PWM1 + (mosfet - 1) * 2)/10;
+        return val
+        
 
     def get_u_in(self):
         """Get 0-10V input value in volts.

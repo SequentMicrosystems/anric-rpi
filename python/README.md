@@ -146,6 +146,16 @@ Set mosfet pwm fill factor.
 * **Parameters:**
   * **mosfet** (*int*) – Mosfet number
   * **val** – (*float*) - Fill factor 0 - 100%    
+  
+  
+#### get_mosfet_pwm(self, mosfet):
+
+Get mosfet pwm fill factor.
+
+* **Parameters:**
+  * **mosfet** (*int*) – Mosfet number
+* **Returns** 
+  * (*float*) - Fill factor 0 - 100%    
 
 
 #### set_u_out( value)
